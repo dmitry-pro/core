@@ -1194,4 +1194,29 @@ class DB
             throw new TelegramException($e->getMessage());
         }
     }
+
+    /**
+     * @return string[]
+     */
+    public static function getMessageAuthor(int $messageId)
+    {
+        if (!self::isDbConnected()) {
+            return false;
+        }
+
+        $sql =
+            'SELECT message.id AS message_id, message.text AS message_text, user.id AS user_id, user.* FROM message JOIN user ON 
+user.id = message.user_id 
+WHERE 
+message
+.id=:message_id 
+LIMIT 1;';
+
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->bindValue(':message_id', $messageId);
+
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
